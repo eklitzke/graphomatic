@@ -119,7 +119,8 @@ F.log = function (data) {
     }
 }
 
-F.onload = function () {
+F.initialize = function (ws_url) {
+    F.ws_url = ws_url || "ws://localhost:8214";
     F.paper = Raphael(document.getElementById("graph"), 800, 600);
     F.paper.path("M5,0L5," + (F.HEIGHT - 1));
     F.paper.path("M5," + (F.HEIGHT - 1) + "L" + F.WIDTH + "," + (F.HEIGHT - 1));
@@ -134,7 +135,7 @@ F.onload = function () {
 }
 
 F.start_running = function () {
-    F.socket = new WebSocket("ws://localhost:8214");
+    F.socket = new WebSocket(F.ws_url);
     F.socket.onopen = function () {
         F.log('opened connection');
     };

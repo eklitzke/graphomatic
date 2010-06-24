@@ -25,7 +25,7 @@ def configure_logging():
 class MainHandler(tornado.web.RequestHandler):
 
     def get(self):
-        self.render('main.html')
+        self.render('main.html', ws_url="ws://iomonad.com:8214")
 
 class DataHandler(tornado.websocket.WebSocketHandler):
 

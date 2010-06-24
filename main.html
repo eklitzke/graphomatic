@@ -4,6 +4,8 @@
 	<title>Graphomatic</title>
 
     <link href="http://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Cantarell" rel="stylesheet" type="text/css">
+
     <link href="{{static_url('css/graphomatic.css')}}" rel="stylesheet" type="text/css">
 
 	<script src="{{static_url('js/jquery-1.4.2.js')}}"></script>
@@ -15,14 +17,23 @@
   <body>
     <h1>Graphomatic</h1>
     <div id="graph" width="800" height="600"></div>
+
+    This demonstrates an animated SVG graph, with data pushed to the client
+    using the <a href="http://dev.w3.org/html5/websockets/">WebSocket</a>
+    protocol. You'll need a relatively bleeding-edge browser for WebSocket
+    support (Chrome 5 should work). There are still some rough edges (e.g. it's
+    really hard to click on the bars). They'll be fixed.
     <br>
+
     <button id="stop">connect</button>
+
     <script type="text/javascript">
       $(document).ready(function () {
-        F.onload();
+        F.initialize('{{ws_url}}');
+        F.start_running();
         var b = document.getElementById('stop');
-        b._running = false;
-        b.innerHTML = 'connect';
+        b._running = true;
+        b.innerHTML = 'disconnect';
         $('#stop').click(function (evt) {
           evt.preventDefault();
           if (b._running) {
