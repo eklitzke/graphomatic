@@ -1,0 +1,72 @@
+var F = {};
+
+F.NUM_POINTS = 60
+F.WIDTH = 800
+F.HEIGHT = 600;
+F.GAP_SIZE = 3;
+F.MAX_VAL = 1.0;
+
+F.points = [];
+F.rectangles = [];
+
+F.add_point = function (point) {
+    F.points.splice(0, 1);
+    F.points.push(point);
+    F.min_time = F.points[0].millis;
+    F.max_time = F.points[F.points.length - 1].millis;
+
+    F.rectangles.splice(0, 1);
+    F.rectangles.push(F.to_rectangle(point, F.NUM_POINTS));
+    for (var i = 0; i < F.rectangles.length - 1; i++) {
+        var p = F.rectangles[i];
+        var q = F.rectangles[i + 1];
+        F.log("i = " + i + ", {y: " + p.y + ", height: " + p.height + "} --> {y: " + q.y + ", height: " + q.height + "}");
+        p.animate({"y": q.y, "height": q.height}, 100);
+    }
+    F.paper.safari();
+}
+
+F.to_rectangle = function (point, pos) {
+    pos = pos || 0;
+    var working_width = F.WIDTH - (F.NUM_POINTS + 1) * F.GAP_SIZE;
+
+    var height = F.HEIGHT * 0.90 * point.val / F.MAX_VAL;
+    var x = F.GAP_SIZE * (pos + 1) + 10 * pos - 5;
+    var y = F.HEIGHT - height;
+
+    r = F.paper.rect(x, y, 10, height, 3).attr({"fill": "red"});
+    r.y = y;
+    r.height = height;
+    return r;
+}
+
+F.log = function (data) {
+    if (window.console && window.console.info) {
+        window.console.info(data);
+    }
+}
+
+F.main = function () {
+    var socket = new WebSocket("ws://localhost:8214/websocket");
+    socket.onopen = function () {
+        F.log('opened connection');
+    };
+    socket.onmessage = function (event) {
+        F.log(event.data);
+        F.add_point(JSON.parse(event.data));
+    };
+}
+
+window.onload = function () {
+    F.paper = Raphael(document.getElementById("graph"), 800, 600);
+    var now = (new Date()).valueOf();
+    for (var i = 0; i < F.NUM_POINTS; i++) { 
+        var p = {"millis": now - 60 + i, "val": Math.random() * 0.7 + 0.2}
+        var rect = F.to_rectangle(p, i);
+        F.points.push(p);
+        F.rectangles.push(rect);
+    }
+    F.min_time = F.points[0].millis;
+    F.max_time = F.points[F.points.length - 1].millis;
+    F.main();
+}

@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+	<title>Graphomatic</title>
+
+    <link href="http://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css">
+    <link href="{{static_url('css/graphomatic.css')}}" rel="stylesheet" type="text/css">
+
+	<script src="{{static_url('js/jquery-1.4.2.js')}}"></script>
+	<script src="{{static_url('js/raphael.js')}}"></script>
+
+	<script src="{{static_url('js/ring.js')}}"></script>
+	<script src="{{static_url('js/firefly.js')}}"></script>
+  </head>
+  <body>
+    <h1>Graphomatic</h1>
+    <div id="graph" width="800" height="600"></div>
+    <br>
+    <button id="stop">connect</button>
+    <script type="text/javascript">
+      $(document).ready(function () {
+        F.onload();
+        var b = document.getElementById('stop');
+        b._running = false;
+        b.innerHTML = 'connect';
+        $('#stop').click(function (evt) {
+          evt.preventDefault();
+          if (b._running) {
+            F.stop_running();
+            b.innerHTML = 'connect'
+            b._running = false;
+          } else {
+            F.start_running();
+            b.innerHTML = 'disconnect'
+            b._running = true;
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
