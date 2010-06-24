@@ -75,15 +75,15 @@ F.to_size = function (point, pos) {
 
 F.to_rectangle = function (point, pos) {
     var dims = F.to_size(point, pos);
-    r = F.paper.rect(dims.x, dims.y, dims.width, dims.height, 3).attr({"fill": F.colors.purple, "stroke": F.colors.purple});
+    var r = F.paper.rect(dims.x, dims.y, dims.width, dims.height, 3).attr({"fill": F.colors.purple, "stroke": F.colors.purple});
     r._dims = dims;
     r._val = point.val;
     r._millis = point.millis;
 
     r.hover(function () {
         this.attr({fill: "red", stroke: "red"});
-        var txt = new String(r._val);
-        txt = txt.slice(0, 6);
+        var txt = new String(this._val);
+        txt = txt.slice(0, 8);
         F.update_hover_label(txt);
     }, function () {
         if (F.bar_clicked == this) {
@@ -107,7 +107,7 @@ F.to_rectangle = function (point, pos) {
             this.attr({fill: F.colors.green, stroke: F.colors.green});
         }
         var txt = new String(this._val);
-        txt = txt.slice(0, 6);
+        txt = txt.slice(0, 8);
         F.update_click_label(txt);
     });
     return r;
