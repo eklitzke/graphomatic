@@ -119,13 +119,12 @@ G.Canvas = function (paper, params) {
     this.addPoint = function (data) {
         var box = this.toBox(data, params.numPoints - 1);
         var rect = paper.rect(box.x, box.y, box.width, box.height, 3);
-        //rect.toBack();
+        rect.toBack();
         rect.purple();
         this.moveLeft(rect);
 
         var lastBackground = this.background[this.background.length - 1];
         lastBackground._contained = rect;
-        lastBackground.toFront();
         if (lastBackground._hovered) {
             rect.red();
         }
