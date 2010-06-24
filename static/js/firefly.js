@@ -10,14 +10,25 @@ F.MAX_VAL = 1.0;
 F.VRULE_OFFSET = 10;
 
 F.bar_clicked = null;
-F.value_label = null;
+F.hover_label = null;
+F.click_label = null;
 
-F.update_value_label = function (new_text) {
-    if (F.value_label) {
-        F.value_label.remove()
+F.update_hover_label = function (new_text) {
+    if (F.hover_label) {
+        F.hover_label.remove()
     }
-    F.value_label = F.paper.text(F.WIDTH - 50, 12, new_text);
-    F.value_label.attr({'font-size': 16, 'font-family': 'Inconsolata, monospace'});
+    F.hover_label = F.paper.text(F.WIDTH - 50, 32, new_text);
+    F.hover_label.attr({'font-size': 16, 'font-family': 'Inconsolata, monospace'});
+    F.hover_label.attr({'fill': 'red', 'stroke': 'red'});
+}
+
+F.update_click_label = function (new_text) {
+    if (F.click_label) {
+        F.click_label.remove()
+    }
+    F.click_label = F.paper.text(F.WIDTH - 50, 12, new_text);
+    F.click_label.attr({'font-size': 16, 'font-family': 'Inconsolata, monospace'});
+    F.click_label.attr({'fill': F.colors.green, 'stroke': F.colors.green});
 }
 
 F.colors = {}
@@ -36,8 +47,8 @@ F.add_point = function (point) {
     }
     if (F.bar_clicked == left) {
         F.bar_clicked = null;
-        left.remove();
     }
+    left.remove();
     F.points.push(F.to_rectangle(point, F.NUM_POINTS - 1));
 
     var first = F.points.first();
@@ -73,14 +84,14 @@ F.to_rectangle = function (point, pos) {
         this.attr({fill: "red", stroke: "red"});
         var txt = new String(r._val);
         txt = txt.slice(0, 6);
-        F.update_value_label(txt);
+        F.update_hover_label(txt);
     }, function () {
         if (F.bar_clicked == this) {
             this.attr({fill: F.colors.green, stroke: F.colors.green});
         } else {
             this.attr({fill: F.colors.purple, stroke: F.colors.purple});
         }
-        F.update_value_label("");
+        F.update_hover_label("");
     });
 
     r.click(function (event) {
@@ -95,6 +106,9 @@ F.to_rectangle = function (point, pos) {
             F.bar_clicked = this;
             this.attr({fill: F.colors.green, stroke: F.colors.green});
         }
+        var txt = new String(this._val);
+        txt = txt.slice(0, 6);
+        F.update_click_label(txt);
     });
     return r;
 }
