@@ -37,7 +37,6 @@ G.Canvas = function (paper, params) {
     for (var i = 0; i < params.numPoints; i++) {
         var box = this.toBox({"val": 0.0}, i);
         var rect = paper.rect(box.x, 0, box.width, params.height);
-        console.info(rect);
         rect._hovered = false;
         rect.attr({"fill": "#000", "stroke": "#000", "opacity": 0.0});
 
@@ -48,8 +47,6 @@ G.Canvas = function (paper, params) {
             }
         }, function () {
             this._hovered = false;
-            console.info('me = ');
-            console.info(me);
             if (this._contained) {
                 if (me.clickedElement === this._contained) {
                     this._contained.green();
@@ -67,8 +64,6 @@ G.Canvas = function (paper, params) {
             if (me.clickedElement) {
                 me.clickedElement.green();
             }
-            console.info('clickedElement');
-            console.info(me.clickedElement);
         });
 
         rect.beforeContainedMove = function () {
@@ -106,6 +101,7 @@ G.Canvas = function (paper, params) {
                 vbars.push(b._contained);
             }
         }
+        this.background[this.background.length - 1].beforeContainedMove();
         if (vbars.length) {
             var first = vbars[0];
             first.animate({"x": first._x}, params.animateTime);
@@ -125,14 +121,13 @@ G.Canvas = function (paper, params) {
         var rect = paper.rect(box.x, box.y, box.width, box.height, 3);
         rect.toBack();
         rect.purple();
-        rect.notifyHover = function () {
-            rect.red();
-        };
-        rect.notifyUnhover = function () {
-            rect.purple();
-        };
         this.moveLeft(rect);
-        this.background[this.background.length - 1]._contained = rect;
+
+        var lastBackground = this.background[this.background.length - 1];
+        lastBackground._contained = rect;
+        if (lastBackground._hovered) {
+            rect.red();
+        }
     };
 };
 
@@ -180,15 +175,11 @@ G.initialize = function (ws_url, params) {
 
 G.start_running = function () {
     G.socket = new WebSocket(G.ws_url);
-    G.socket.onopen = function () {
-        console.info('opened connection');
-    };
     G.socket.onmessage = function (event) {
         G.canvas.addPoint(JSON.parse(event.data));
     };
 }
 
 G.stop_running = function () {
-    console.info('stop_running');
     G.socket.close();
 }

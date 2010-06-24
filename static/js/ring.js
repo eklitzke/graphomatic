@@ -1,5 +1,5 @@
-F = {};
-F.Ring = function (size) {
+G = G || {};
+G.Ring = function (size) {
     this.length = size;
     this._position = 0;
     this._buffer = [];
@@ -44,4 +44,4 @@ F.Ring = function (size) {
         }
         return this._buffer[p];
     }
-}
+};

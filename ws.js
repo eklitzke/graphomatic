@@ -5,7 +5,7 @@ var intervals = {};
 
 var server = ws.createServer({debug: true});
 
-var cycle_length = 30 * 1000; // ten seconds
+var cycle_length = 90 * 1000; // ten seconds
 var timeout = cycle_length / 60;
 
 server.addListener("connection", function (conn) {
