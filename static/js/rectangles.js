@@ -20,6 +20,47 @@ G.Canvas = function (paper, params) {
 
     this.background = [];
 
+    this.updateScale = function () {
+        var i;
+        var newMax = 0;
+        /* TODO: optimize this by comparing against the oldest value */
+        for (i = 0; i < this.background.length; i++) {
+            var b = this.background[i];
+            if (b._contained) {
+                newMax = b._contained.val > newMax ? b._contained.val : newMax;
+            }
+        }
+
+        if (newMax === params.maxVal) {
+            return;
+        }
+        params.maxVal = newMax;
+
+        var graphMax = newMax * 1.1;
+        var exp = Math.floor(Math.log(graphMax) / Math.log(10));
+        var normalized = graphMax * Math.pow(10, -exp);
+
+        var step;
+        if (normalized < 2) {
+            step = 0.2 * Math.pow(10, exp);
+        } else if (normalized < 5) {
+            step = 0.5 * Math.pow(10, exp);
+        } else {
+            step = Math.pow(10, exp);
+        }
+        var ticks = Math.ceil(graphMax / step);
+
+        /* Re-animate the boxes */
+        var i;
+        for (var i = 0; i < this.background.length; i++) {
+            var c = this.background[i]._contained;
+            if (c && c.val) {
+                c._height = params.height * c.val / graphMax;
+                c._y = params.height - c._height;
+            }
+        }
+    }
+
     this.toBox = function (point, pos) {
         var x, y;
         if (pos !== undefined) {
@@ -37,6 +78,7 @@ G.Canvas = function (paper, params) {
     for (var i = 0; i < params.numPoints; i++) {
         var box = this.toBox({"val": 0.0}, i);
         var rect = paper.rect(box.x, 0, box.width, params.height);
+        rect.val = 0;
         rect._hovered = false;
         rect.attr({"fill": "#000", "stroke": "#000", "opacity": 0.0});
 
@@ -104,9 +146,10 @@ G.Canvas = function (paper, params) {
         this.background[this.background.length - 1].beforeContainedMove();
         if (vbars.length) {
             var first = vbars[0];
-            first.animate({"x": first._x}, params.animateTime);
+            first.animate({"x": first._x, "y": first.attrs.y, "height": first.attrs.height}, params.animateTime);
             for (var i = 1; i < vbars.length; i++) {
-                vbars[i].animateWith(first, {"x": vbars[i]._x}, params.animateTime);
+                var v = vbars[i];
+                v.animateWith(first, {"x": v._x, "y": v._y || v.attrs.y, "height": v._height || v.attrs.height}, params.animateTime);
             }
         }
     };
@@ -119,6 +162,7 @@ G.Canvas = function (paper, params) {
     this.addPoint = function (data) {
         var box = this.toBox(data, params.numPoints - 1);
         var rect = paper.rect(box.x, box.y, box.width, box.height, 3);
+        rect.val = data.val;
         rect.toBack();
         rect.purple();
         this.moveLeft(rect);
@@ -128,6 +172,7 @@ G.Canvas = function (paper, params) {
         if (lastBackground._hovered) {
             rect.red();
         }
+        this.updateScale();
     };
 };
 
@@ -156,7 +201,7 @@ G.initialize = function (ws_url, params) {
     G.canvas = canvas;
 
     var now = (new Date()).valueOf();
-    for (var i = 0; i < params.numPoints; i++) { 
+    for (var i = 0; i < params.numPoints; i++) {
         var p = {"millis": now - 60 + i, "val": 0};
         G.canvas.addPoint(p);
 
