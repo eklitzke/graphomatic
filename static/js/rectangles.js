@@ -165,6 +165,7 @@ G.Canvas = function (paper, params) {
         rect.val = data.val;
         rect.toBack();
         rect.purple();
+        this.updateScale();
         this.moveLeft(rect);
 
         var lastBackground = this.background[this.background.length - 1];
@@ -172,7 +173,6 @@ G.Canvas = function (paper, params) {
         if (lastBackground._hovered) {
             rect.red();
         }
-        this.updateScale();
     };
 };
 
