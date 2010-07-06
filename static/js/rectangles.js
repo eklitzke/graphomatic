@@ -20,11 +20,11 @@ G.Canvas = function (paper, params) {
 
     this.background = [];
 
-    this.updateScale = function () {
+    this.updateScale = function (newVal) {
         var i;
-        var newMax = 0;
+        var newMax = newVal;
         /* TODO: optimize this by comparing against the oldest value */
-        for (i = 0; i < this.background.length; i++) {
+        for (i = 1; i < this.background.length; i++) {
             var b = this.background[i];
             if (b._contained) {
                 newMax = b._contained.val > newMax ? b._contained.val : newMax;
@@ -35,10 +35,10 @@ G.Canvas = function (paper, params) {
             return;
         }
         params.maxVal = newMax;
+        params.graphMax = newMax * 1.1;
 
-        var graphMax = newMax * 1.1;
-        var exp = Math.floor(Math.log(graphMax) / Math.log(10));
-        var normalized = graphMax * Math.pow(10, -exp);
+        var exp = Math.floor(Math.log(params.graphMax) / Math.log(10));
+        var normalized = params.graphMax * Math.pow(10, -exp);
 
         var step;
         if (normalized < 2) {
@@ -48,14 +48,14 @@ G.Canvas = function (paper, params) {
         } else {
             step = Math.pow(10, exp);
         }
-        var ticks = Math.ceil(graphMax / step);
+        var ticks = Math.ceil(params.graphMax / step);
 
         /* Re-animate the boxes */
         var i;
         for (var i = 0; i < this.background.length; i++) {
             var c = this.background[i]._contained;
             if (c && c.val) {
-                c._height = params.height * c.val / graphMax;
+                c._height = params.height * c.val / params.graphMax;
                 c._y = params.height - c._height;
             }
         }
@@ -69,7 +69,7 @@ G.Canvas = function (paper, params) {
         } else {
             x = params.vruleOffset;
         }
-        var height = params.height * 0.90 * point.val / params.maxVal;
+        var height = params.height * point.val / params.graphMax;
         y = params.height - height;
         return {"x": x, "y": y, "width": 10, "height": height};
     };
@@ -160,12 +160,12 @@ G.Canvas = function (paper, params) {
     };
 
     this.addPoint = function (data) {
+        this.updateScale(data.val);
         var box = this.toBox(data, params.numPoints - 1);
         var rect = paper.rect(box.x, box.y, box.width, box.height, 3);
         rect.val = data.val;
         rect.toBack();
         rect.purple();
-        this.updateScale();
         this.moveLeft(rect);
 
         var lastBackground = this.background[this.background.length - 1];
