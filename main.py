@@ -37,7 +37,10 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         ts = time.time()
         val = (ts % 60) / 60.0
         val += max(random.random() * 0.2 - 0.1, 0.01)
-        self.write_message(simplejson.dumps({'millis': ts * 1000, 'val': val}))
+        try:
+            self.write_message(simplejson.dumps({'millis': ts * 1000, 'val': val}))
+        except IOError:
+            self.send_cb.stop()
 
 settings = {
     'debug': True,
