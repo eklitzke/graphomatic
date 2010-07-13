@@ -1,4 +1,5 @@
 import os
+import random
 import time
 import logging
 import tornado.httpserver
@@ -25,14 +26,27 @@ def configure_logging():
 class MainHandler(tornado.web.RequestHandler):
 
     def get(self):
-        self.render('main.html', ws_url="ws://iomonad.com:8214")
+        self.render('main.html')
+
+class WebSocketHandler(tornado.websocket.WebSocketHandler):
+    def open(self):
+        self.send_cb = tornado.ioloop.PeriodicCallback(self.send_value, 1000)
+        self.send_cb.start()
+
+    def send_value(self):
+        ts = time.time()
+        val = (ts % 60) / 60.0
+        val += max(random.random() * 0.2 - 0.1, 0.01)
+        self.write_message(simplejson.dumps({'millis': ts * 1000, 'val': val}))
 
 settings = {
     'debug': True,
     'static_path': os.path.join(os.getcwd(), 'static')
 }
 
-application = tornado.web.Application([('/graphomatic', MainHandler)], **settings)
+application = tornado.web.Application([
+        ('/graphomatic', MainHandler),
+        ('/data', WebSocketHandler)], **settings)
 
 if __name__ == '__main__':
     configure_logging()

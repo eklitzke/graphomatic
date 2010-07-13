@@ -177,7 +177,7 @@ G.Canvas = function (paper, params) {
 };
 
 G.initialize = function (ws_url, params) {
-    G.ws_url = ws_url || "ws://localhost:8214";
+    G.ws_url = ws_url || "ws://localhost:8888/data";
     G.params = params = params || {};
     addParam = function (name, default_) {
         if (!(name in G.params)) {
