@@ -17,6 +17,7 @@ Raphael.el.red = function() {
 
 G.Canvas = function (paper, params) {
     this.clickedElement = null;
+    this.latestText = null;
 
     this.background = [];
 
@@ -154,6 +155,15 @@ G.Canvas = function (paper, params) {
         }
     };
 
+    this.updateText = function (val) {
+        var txt = new String(val);
+        txt = txt.slice(0, 6);
+        if (this.latestText) {
+            this.latestText.remove();
+        }
+        this.latestText = paper.text(G.params.width - 50, 7, "now: " + txt).attr({"font-family": "Inconsolata, monospace", "font-size": "14px"});
+    }
+
     this.addData = function (data) {
         var data = JSON.parse(data);
         return this.addPoint(data);
@@ -167,6 +177,7 @@ G.Canvas = function (paper, params) {
         rect.toBack();
         rect.purple();
         this.moveLeft(rect);
+        this.updateText(data.val);
 
         var lastBackground = this.background[this.background.length - 1];
         lastBackground._contained = rect;
