@@ -35,8 +35,9 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 
     def send_value(self):
         ts = time.time()
-        val = (ts % 60) / 60.0
-        val += max(random.random() * 0.2 - 0.1, 0.01)
+        val = ts % 60
+        modifier = 1 + (random.random() * 0.2 - 0.1)
+        val *= modifier
         try:
             self.write_message(simplejson.dumps({'millis': ts * 1000, 'val': val}))
         except IOError:
@@ -48,8 +49,8 @@ settings = {
 }
 
 application = tornado.web.Application([
-        ('/graphomatic', MainHandler),
-        ('/data', WebSocketHandler)], **settings)
+        (r'/', MainHandler),
+        (r'/data', WebSocketHandler)], **settings)
 
 if __name__ == '__main__':
     configure_logging()
