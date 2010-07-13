@@ -21,6 +21,9 @@ G.Canvas = function (paper, params) {
 
     this.background = [];
 
+    this.tickMarks = []
+    this.lastStep = null;
+
     this.updateScale = function (newVal) {
         var i;
         var newMax = newVal;
@@ -50,16 +53,37 @@ G.Canvas = function (paper, params) {
             step = Math.pow(10, exp);
         }
         var ticks = Math.ceil(params.graphMax / step);
+        console.info('step = ' + step + ', lastStep = ' + this.lastStep + ', ticks = ' + ticks + ', maxTick = ' + step * ticks);
 
         /* Re-animate the boxes */
         var i;
-        for (var i = 0; i < this.background.length; i++) {
+        for (i = 0; i < this.background.length; i++) {
             var c = this.background[i]._contained;
             if (c && c.val) {
                 c._height = params.height * c.val / params.graphMax;
                 c._y = params.height - c._height;
             }
         }
+
+        if ((step != this.lastStep) || (ticks != this.tickMarks.length)) {
+            this.lastStep = step;
+            for (i = 0; i < this.tickMarks.length; i++) {
+                this.tickMarks[i].label.remove();
+                this.tickMarks[i].remove();
+                delete this.tickMarks[i];
+            }
+            this.tickMarks = [];
+            for (i = 0; i < ticks; i++) {
+                var y = params.height - params.height * (step * i) / params.graphMax;
+                console.info('y = ' + y);
+                var path = paper.path("M15 " + y + "L25 " + y);
+                var label = paper.text(5, y, step * i).attr({"font-family": "Inconsolata", "font-size": "12px"});
+                path.label = label;
+                this.tickMarks.push(path);
+            }
+            console.info(this.tickMarks);
+        }
+
     }
 
     this.toBox = function (point, pos) {
@@ -201,12 +225,12 @@ G.initialize = function (ws_url, params) {
     addParam("height", 600);
     addParam("maxVal", 1.0);
     addParam("numPoints", 65);
-    addParam("vruleOffset", 10);
+    addParam("vruleOffset", 20);
     addParam("width", 800);
 
     G.paper = Raphael(document.getElementById("graph"), 800, 600);
-    G.paper.path("M5,0L5," + (params.height - 1));
-    G.paper.path("M5," + (params.height - 1) + "L" + params.width + "," + (params.height - 1));
+    G.paper.path("M" + params.vruleOffset + ",0L" + params.vruleOffset + "," + (params.height - 1));
+    G.paper.path("M" + params.vruleOffset + "," + (params.height - 1) + "L" + params.width + "," + (params.height - 1));
 
     var canvas = new G.Canvas(G.paper, params);
     G.canvas = canvas;
